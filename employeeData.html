@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<!-- Latest compiled and minified CSS & JS -->
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+	<script src="https://www.gstatic.com/firebasejs/4.1.2/firebase.js"></script>
+	<script>
+	  // Initialize Firebase
+	  var config = {
+	    apiKey: "AIzaSyCUdX06RUvvsUXtbdMHK9dru78SCS8-S2k",
+	    authDomain: "employeedata-a897e.firebaseapp.com",
+	    databaseURL: "https://employeedata-a897e.firebaseio.com",
+	    projectId: "employeedata-a897e",
+	    storageBucket: "employeedata-a897e.appspot.com",
+	    messagingSenderId: "369402402943"
+	  };
+	  firebase.initializeApp(config);
+	  var database = firebase.database();
+	</script>
+	<script  src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.15.1/moment.js" type="text/javascript"></script>
+
+</head>
+<body>
+	<div class="container">
+		<div class="jumbotron">
+			<h1 class="text-center"><strong>Hangman</strong></h1>
+			<h4 class="text-center">Wood you like to answer?</h4>
+		</div>
+		<div class='container'>
+			<div class='row'>
+				<div class='panel panel-default'>
+					<div class='panel-heading'>
+						<h3>Employee Data</h3>
+					</div>
+					<div class='panel-body'>
+						<table class='table'>
+							<tbody id='trash'>
+								<tr>
+									<th class='col-lg-3'>Employee Name</th>
+									<th class='col-lg-1'>Role</th>
+									<th class='col-lg-2'>Start Date</th>
+									<th class='col-lg-2'>Months Worked</th>
+									<th class='col-lg-2'>Monthly Rate</th>
+									<th class='col-lg-2'>Total Billed</th>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<div class='row'>
+			    <div class="panel panel-default">
+			        <div class="panel-heading">Add Employee</div>
+			        <div class="panel-body">
+				        <p>Employee Name</p> 
+				        <input type="input" name="name" id='name'>
+
+				        <p>Role</p>
+				        <input type="input" name="role" id='role'>
+
+				        <p>Start Date (MM/DD/YYYY)</p>
+				        <input type="input" name="startDate" id='startDate'>
+
+				        <p>Monthly Rate</p>
+				        <input type="input" name="rate" id='rate'>
+
+				        <input id="submit" class="btn btn-warning" type="submit" name="submit">
+			        </div>
+			    </div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		// database.ref().on("value", function(snapshot) {
+		// 	console.log(snapshot.val());
+		// });
+		database.ref().on("child_added", function(snapshot) {
+			var now = moment().format();
+			var convertedDate = moment(snapshot.val().startDate).format();
+			var diff = moment(now).diff(convertedDate,'months')
+			var bill = diff*snapshot.val().rate
+			$('#trash').append('<tr><td>'+snapshot.val().name+'</td><td>'+snapshot.val().role+'</td><td>'+snapshot.val().startDate+'</td><td>'+ diff +'</td><td>'+snapshot.val().rate+'</td><td>'+ bill +'</td></tr>')
+		});
+
+		$("#submit").on("click", function(event){
+		    event.preventDefault();
+			database.ref().push({
+				name: $('#name').val().trim(),
+				role: $('#role').val().trim(),
+				startDate: $('#startDate').val().trim(),
+				rate: $('#rate').val().trim(),
+			})
+
+			$('#name').val('')
+			$('#role').val('')
+			$('#startDate').val('')
+			$('#rate').val('')
+		});
+
+
+
+	</script>
+</body>
+</html>
+
+
+
+
+
