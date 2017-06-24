@@ -26,14 +26,14 @@
 <body>
 	<div class="container">
 		<div class="jumbotron">
-			<h1 class="text-center"><strong>Hangman</strong></h1>
-			<h4 class="text-center">Wood you like to answer?</h4>
+			<h1 class="text-center"><strong>Train Schedule</strong></h1>
+			<h4 class="text-center">Do you even lift bro</h4>
 		</div>
 		<div class='container'>
 			<div class='row'>
 				<div class='panel panel-default'>
 					<div class='panel-heading'>
-						<h3>Employee Data</h3>
+						<h3>Train Arrival</h3>
 					</div>
 					<div class='panel-body'>
 						<table class='table'>
@@ -77,7 +77,7 @@
 		//todo: set a refresh for every minute
 		//todo: don't suck
 
-		var cycle = database.ref().on("child_added", function(snapshot) {
+		database.ref().on("child_added", function(snapshot) {
 			var now = moment();
 			console.log('refreshed')
 			//time from database
