@@ -79,7 +79,6 @@
 
 		database.ref().on("child_added", function(snapshot) {
 			var now = moment();
-			console.log('refreshed')
 			//time from database
 			var newTime = moment.unix(snapshot.val().startTime);
 			//mins away, need to be subtracted from rate
