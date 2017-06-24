@@ -74,16 +74,14 @@
 	</div>
 	<script type="text/javascript">
 
-		//todo: currently bases arrival info off of now rather than first train
 		//todo: set a refresh for every minute
 		//todo: don't suck
 
-		
-		var time = 0
-		var now = moment();
-		database.ref().on("child_added", function(snapshot) {
+		var cycle = database.ref().on("child_added", function(snapshot) {
+			var now = moment();
+			console.log('refreshed')
 			//time from database
-			var newTime = moment(snapshot.val().startTime);
+			var newTime = moment.unix(snapshot.val().startTime);
 			//mins away, need to be subtracted from rate
 			var away = moment(now).diff(newTime, 'minutes')%snapshot.val().rate;
 			var minutesAway = snapshot.val().rate - away;
@@ -100,10 +98,9 @@
 		    d.setHours(newHourMin[0]);
 		    d.setMinutes(newHourMin[1]);
 			database.ref().push({
-				startedAt: firebase.database.ServerValue.TIMESTAMP,
 				name: $('#name').val().trim(),
 				destination: $('#destination').val().trim(),
-				startTime: d,
+				startTime: moment(d).unix(),
 				rate: $('#rate').val().trim(),
 			})
 
@@ -113,7 +110,7 @@
 			$('#rate').val('')
 		});
 
-
+		// setInterval(cycle, 60000)	
 
 	</script>
 </body>
