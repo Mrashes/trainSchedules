@@ -39,12 +39,11 @@
 						<table class='table'>
 							<tbody id='trash'>
 								<tr>
-									<th class='col-lg-3'>Employee Name</th>
-									<th class='col-lg-1'>Role</th>
-									<th class='col-lg-2'>Start Date</th>
-									<th class='col-lg-2'>Months Worked</th>
-									<th class='col-lg-2'>Monthly Rate</th>
-									<th class='col-lg-2'>Total Billed</th>
+									<th class='col-md-3'>Train Name</th>
+									<th class='col-md-2'>Destination</th>
+									<th class='col-md-2'>Frequency</th>
+									<th class='col-md-2'>Next Arrival</th>
+									<th class='col-md-3'>Minutes Away</th>
 								</tr>
 							</tbody>
 						</table>
@@ -55,16 +54,16 @@
 			    <div class="panel panel-default">
 			        <div class="panel-heading">Add Employee</div>
 			        <div class="panel-body">
-				        <p>Employee Name</p> 
+				        <p>Train Name</p> 
 				        <input type="input" name="name" id='name'>
 
-				        <p>Role</p>
-				        <input type="input" name="role" id='role'>
+				        <p>Destination</p>
+				        <input type="input" name="destination" id='destination'>
 
-				        <p>Start Date (MM/DD/YYYY)</p>
-				        <input type="input" name="startDate" id='startDate'>
+				        <p>First Train (HH:MM)</p>
+				        <input type="input" name="startTime" id='startTime'>
 
-				        <p>Monthly Rate</p>
+				        <p>Frequency (Min)</p>
 				        <input type="input" name="rate" id='rate'>
 
 				        <input id="submit" class="btn btn-warning" type="submit" name="submit">
@@ -74,29 +73,43 @@
 		</div>
 	</div>
 	<script type="text/javascript">
-		// database.ref().on("value", function(snapshot) {
-		// 	console.log(snapshot.val());
-		// });
+
+		//todo: currently bases arrival info off of now rather than first train
+		//todo: set a refresh for every minute
+		//todo: don't suck
+
+		
+		var time = 0
+		var now = moment();
 		database.ref().on("child_added", function(snapshot) {
-			var now = moment().format();
-			var convertedDate = moment(snapshot.val().startDate).format();
-			var diff = moment(now).diff(convertedDate,'months')
-			var bill = diff*snapshot.val().rate
-			$('#trash').append('<tr><td>'+snapshot.val().name+'</td><td>'+snapshot.val().role+'</td><td>'+snapshot.val().startDate+'</td><td>'+ diff +'</td><td>'+snapshot.val().rate+'</td><td>'+ bill +'</td></tr>')
+			//time from database
+			var newTime = moment(snapshot.val().startTime);
+			//mins away, need to be subtracted from rate
+			var away = moment(now).diff(newTime, 'minutes')%snapshot.val().rate;
+			var minutesAway = snapshot.val().rate - away;
+			//arrival data.  its now + minutes away
+			var arrival = moment(now).add(minutesAway,'m');
+			$('#trash').append('<tr><td>'+snapshot.val().name+'</td><td>'+snapshot.val().destination+'</td><td>Every '+snapshot.val().rate+' Minutes</td><td>'+ moment(arrival).format('HH:mm') + '' +'</td><td>'+ minutesAway + ' minutes away</td></tr>')
 		});
 
 		$("#submit").on("click", function(event){
 		    event.preventDefault();
+		    var hourMin = $('#startTime').val();
+		    var d = new Date();
+		    newHourMin = hourMin.split(':');
+		    d.setHours(newHourMin[0]);
+		    d.setMinutes(newHourMin[1]);
 			database.ref().push({
+				startedAt: firebase.database.ServerValue.TIMESTAMP,
 				name: $('#name').val().trim(),
-				role: $('#role').val().trim(),
-				startDate: $('#startDate').val().trim(),
+				destination: $('#destination').val().trim(),
+				startTime: d,
 				rate: $('#rate').val().trim(),
 			})
 
 			$('#name').val('')
-			$('#role').val('')
-			$('#startDate').val('')
+			$('#destination').val('')
+			$('#startTime').val('')
 			$('#rate').val('')
 		});
 
